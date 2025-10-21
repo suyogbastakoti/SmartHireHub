@@ -69,7 +69,16 @@ exports.getJobById = async (req, res) => {
 
 
 // Employer: Get own jobs (any status)
-
+exports.getEmployerJobs = async (req, res) =>{
+    try{
+        const jobs = await Job.find({employer: req.user.userId}).sort({ postedDate: -1 });
+        return res.status(200).json({success: true, data: jobs });
+    }
+    catch(error){
+        console.error('getEmployerJobs error:', error);
+        return res.status(500).json({ success: false, message:'Failed to fetch employer jobs'});
+    }
+};
 
 
 // Update job (Employer or Admin)
