@@ -82,7 +82,39 @@ exports.getEmployerJobs = async (req, res) =>{
 
 
 // Update job (Employer or Admin)
+exports.updateJob = async (req, res) => {
+    try{
+        const jobId = req.params.id;
+        const updates = req.body;
 
+        const job = await Job.findById(jobId);
+        if (!job) return res.status(404).json({success: false, message: 'Job not found'});
+
+        const isOwner = String(job.employer) === String(req.user.userId);
+        const isAdmin = req.user.role === 'admin';
+        if (!isOwner && !isAdmin){
+            return res.status(403).json({success: false, message: 'Not authorized to update this job'});
+        }
+
+        // If employer edits an approved job, set back to pending for re-approval
+        const editedByEmployer = isOwner && !isAdmin;
+
+        Object.assign(job,updates);
+        if(editedByEmployer){
+            job.status = 'pending';
+            job.approvedAt = undefined;
+            job.approvedBy = undefined;
+            job.rejectedReason = undefined;
+        }
+
+        await job.save();
+        return res.status(200).json({ success: true, message: 'Job updated', data: job });
+    }
+    catch(error){
+        console.error('UpdateJob error:', error);
+        return res.status(500).json({success: false, message: 'Failed to update job'});
+    }
+};
 
 // Delete job (Employer or Admin)
 
