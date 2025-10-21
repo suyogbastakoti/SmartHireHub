@@ -117,4 +117,23 @@ exports.updateJob = async (req, res) => {
 };
 
 // Delete job (Employer or Admin)
+exports.deleteJob = async (req, res) => {
+    try{
+        const job = await Job.findById(req.params.id);
+        if (!job) return res.status(404).json({success: false, message: 'Job not found'});
 
+        const isOwner = String(job.employer) === String(req.user.userId);
+        const isAdmin = req.user.role === 'admin';
+        if (!isOwner && !isAdmin){
+            return res.status(403).json({success: false, message: 'Not authorized to delete this job'});
+
+        }
+        await job.deleteOne();
+        return res.status(200).json({success: true, message: 'Job deleted'});
+
+    }
+    catch(error){
+        console.error('deleteJob error:',error);
+        return res.status(500).json({ success: false, message: 'Failed to delete job' });
+    }
+};
