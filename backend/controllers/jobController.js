@@ -42,7 +42,27 @@ exports.getApprovedJobs = async (_req, res) => {
 
 
 // Public: Get job by ID (approved only unless owner/admin)
+exports.getJobById = async (req, res) => {
+    try{
+        const job = await Job.findById(req.params.id);
+        if(!job){
+            return res.status(404).json({ success: false, message: 'Job not found' });
+        }
 
+        const isOwner = req.user && String(job.employer) === String(req.user.userId);
+        const isAdmin = req.user && req.user.role === "admin";
+        if (job.status !== 'approved' && !isOwner && !isAdmin){
+            return res.status(403).json({ success: false, message: 'Job is not available'});
+        }
+
+        return res.status(200).json({ success: true, data :job });
+
+    }
+    catch(error){
+        console.error('getJobById error: ', error);
+        return res.status(500).json({ success: false, message: 'Failed to fetch job' });
+    }
+};
 
 
 
