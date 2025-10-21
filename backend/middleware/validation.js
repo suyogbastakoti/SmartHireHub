@@ -246,5 +246,28 @@ module.exports = {
     loginSchema,
     updateProfileSchema,
     changePasswordSchema,
-    jobPostingSchema
+    jobPostingSchema,
+    // Allow partial updates but validate shapes
+    jobUpdateSchema: Joi.object({
+        title: Joi.string().min(5).max(100).optional(),
+        description: Joi.string().min(50).max(2000).optional(),
+        companyName: Joi.string().min(2).max(100).optional(),
+        location: Joi.object({
+            city: Joi.string().optional(),
+            country: Joi.string().optional(),
+            remote: Joi.boolean().optional()
+        }).optional(),
+        jobType: Joi.string().valid('full-time', 'part-time', 'contract', 'internship', 'freelance').optional(),
+        experienceLevel: Joi.string().valid('entry', 'mid', 'senior', 'executive').optional(),
+        salary: Joi.object({
+            min: Joi.number().min(0).optional(),
+            max: Joi.number().min(Joi.ref('min')).optional(),
+            currency: Joi.string().optional(),
+            negotiable: Joi.boolean().optional()
+        }).optional(),
+        skillsRequired: Joi.array().items(Joi.string().trim()).min(1).optional(),
+        requirements: Joi.array().items(Joi.string().trim()).optional(),
+        benefits: Joi.array().items(Joi.string().trim()).optional(),
+        expiryDate: Joi.date().min('now').optional()
+    })
 };
