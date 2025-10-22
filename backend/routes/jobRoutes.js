@@ -14,7 +14,7 @@ router.post('/', authenticateToken, requireEmployer, validate(jobPostingSchema),
 router.get('/employer/me', authenticateToken, requireEmployer, jobController.getEmployerJobs);
 
 // Update/Delete (Employer or Admin)
-router.put('/', authenticateToken, requireEmployerOrAdmin, validate(jobUpdateSchema), jobController.updateJob);
+router.put('/:id', authenticateToken, requireEmployerOrAdmin, validate(jobUpdateSchema), jobController.updateJob);
 router.delete('/:id', authenticateToken, requireEmployerOrAdmin, jobController.deleteJob);
 
 module.exports = router;

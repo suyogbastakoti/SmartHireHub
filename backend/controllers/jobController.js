@@ -19,6 +19,7 @@ exports.createJob = async(req, res) =>{
             status:'pending',
             expiryDate: payload.expiryDate
         });
+        return res.status(201).json({ success: true, message: 'Job created and pending approval', data: job });
     }
     catch(error){
         console.error(' createJob error: ',error);
